@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FOP Subcommittee Interviews</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f2; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dd;
+  --accent:#1f4fd8; --accent-ink:#fff; --ok:#1a7f4b; --warn:#b42318; --soft:#eef2fd;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141416; --card:#1e1e21; --ink:#f2f2f3; --muted:#a0a0a8; --line:#33333a; --accent:#7aa2ff; --accent-ink:#0d1020; --ok:#4cc38a; --warn:#ff8a7a; --soft:#22283a; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+header h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted)}
+.banner{background:#fff4d6;color:#5c4400;border-radius:10px;padding:10px 14px;margin:16px 0 0;font-size:13.5px}
+@media (prefers-color-scheme: dark){.banner{background:#3a3010;color:#f3dc9a}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:16px}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%}
+textarea{min-height:140px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.row>*{flex:1;min-width:120px}
+.row>.shrink{flex:0 0 auto;min-width:0}
+button{font:inherit;font-weight:600;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+button.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+button.danger{background:transparent;color:var(--warn);border:1px solid var(--line)}
+button:disabled{opacity:.5;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--accent);font-weight:500;cursor:pointer}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.port-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dot{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+.tag{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.port-name{font-weight:600;font-size:16px}
+.day{margin:12px 0 6px;font-size:13px;font-weight:600;color:var(--muted)}
+.slots{display:flex;flex-wrap:wrap;gap:8px}
+.slot{background:var(--soft);color:var(--ink);border:1px solid transparent;font-weight:500;padding:8px 12px}
+.slot:hover{border-color:var(--accent)}
+.slot small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+.booked{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--soft);border-radius:10px;padding:12px 14px}
+.booked b{display:block}
+.ok{color:var(--ok);font-weight:600}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-top:18px}
+.tabs button{background:none;color:var(--muted);border-radius:8px 8px 0 0;padding:9px 14px}
+.tabs button.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;background:var(--soft)}
+.pill.no{background:transparent;border:1px dashed var(--line);color:var(--muted)}
+.bad{color:var(--warn)}
+.stat{display:flex;gap:18px;flex-wrap:wrap;margin:4px 0 12px}
+.stat div b{display:block;font-size:20px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal .card{max-width:420px;width:100%;margin:0}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:90vw;z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.toast.err{background:var(--warn);color:#fff}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px}
+@keyframes s{to{transform:rotate(360deg)}}
+footer{margin-top:28px;text-align:center;font-size:13px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>FOP Subcommittee Interviews</h1>
+    <p>Book one interview for each portfolio you applied for. You'll only see slots that don't clash with each other.</p>
+    <div class="banner" id="demoBanner" hidden>Demo mode. Bookings are saved in this browser only. Try <b>alex@e.ntu.edu.sg</b> or <b>bea@e.ntu.edu.sg</b>; committee passcode is <b>demo</b>.</div>
+  </header>
+
+  <main id="applicantView">
+    <form class="card" id="findForm">
+      <label for="email">Email you applied with</label>
+      <div class="row">
+        <input id="email" type="email" required placeholder="you@e.ntu.edu.sg" autocomplete="email">
+        <button class="shrink" type="submit" id="findBtn">Find my slots</button>
+      </div>
+    </form>
+    <div id="me"></div>
+  </main>
+
+  <main id="adminView" hidden>
+    <form class="card" id="loginForm">
+      <label for="pass">Committee passcode</label>
+      <div class="row">
+        <input id="pass" type="password" required autocomplete="current-password">
+        <button class="shrink" type="submit">Open</button>
+      </div>
+    </form>
+    <div id="admin" hidden>
+      <div class="tabs" id="tabs">
+        <button data-tab="slots" class="on">Slots</button>
+        <button data-tab="applicants">Applicants</button>
+        <button data-tab="import">Import applicants</button>
+      </div>
+      <div id="tab-slots"></div>
+      <div id="tab-applicants" hidden></div>
+      <div id="tab-import" hidden></div>
+    </div>
+  </main>
+
+  <footer><button class="link" id="switchView">Committee view</button></footer>
+</div>
+
+<div class="modal" id="modal" hidden><div class="card" id="modalBody"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="core.js"></script>
+<script>
+// ===== Config =====
+// Paste the Apps Script web app URL (ends in /exec). Leave empty for demo mode.
+const API_URL = 'https://script.google.com/macros/s/AKfycbwWkM2m-wxXj6Uc5aqcMONKwpd8UcXshNNPhoI49OEzaF8STFJpuQVdJ0x5uwmeWlhO/exec';
+
+const COLORS = {
+  'Publicity and Publications':'#1f77b4','Logistics and Welfare':'#ff7f0e','Programmer':'#2ca02c',
+  'Group Leader - Solertia':'#d62728','Group Leader - Peritia':'#9467bd','Group Leader - Meliora':'#8c564b','Group Leader - Sagacitas':'#e377c2'
+};
+const colorOf = p => COLORS[p] || '#888';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dayOf = s => new Date(s + ':00+08:00').toLocaleDateString('en-SG', {weekday:'short', day:'numeric', month:'short', timeZone:'Asia/Singapore'});
+const hm = s => s.slice(11, 16);
+const when = (s, e) => `${dayOf(s)}, ${hm(s)}–${hm(e)}`;
+const store = {
+  get(k){ try { return sessionStorage.getItem(k); } catch { return null; } },
+  set(k, v){ try { v == null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch {} }
+};
+
+// ===== Demo backend (same logic as the live server) =====
+const Mock = (() => {
+  const KEY = 'fopDemoDb.v1';
+  let mem = null;
+  function seed(){
+    const base = new Date(Date.now() + 8*3600e3);
+    const day = n => { const d = new Date(base.getTime() + n*864e5); return d.toISOString().slice(0,10); };
+    const db = { applicants: [
+      {email:'alex@e.ntu.edu.sg', name:'Alex Tan', choice1:'Programmer', choice2:'Group Leader - Peritia'},
+      {email:'bea@e.ntu.edu.sg', name:'Bea Lim', choice1:'Publicity and Publications', choice2:'Logistics and Welfare'},
+      {email:'chen@e.ntu.edu.sg', name:'Chen Wei', choice1:'Group Leader - Meliora', choice2:'Programmer'},
+      {email:'dina@e.ntu.edu.sg', name:'Dina Rahman', choice1:'Group Leader - Solertia', choice2:''}
+    ], slots: [], bookings: [] };
+    const ctx = { now: Date.now()/60000, adminPass: 'demo' };
+    Core.PORTFOLIOS.forEach((p, i) => {
+      [1, 2].forEach(n => Core.handle(db, { action:'addSlots', pass:'demo', portfolio:p, date:day(n),
+        from: i % 2 ? '14:00' : '15:00', to: i % 2 ? '17:00' : '18:00', length:20, capacity:1, location: i < 3 ? 'SPMS Atrium meeting room' : 'TR+41' }, ctx));
+    });
+    const chenSlot = db.slots.find(s => s.portfolio === 'Programmer');
+    Core.handle(db, { action:'book', email:'chen@e.ntu.edu.sg', slotId: chenSlot.id }, ctx);
+    return db;
+  }
+  function load(){
+    if (mem) return mem;
+    try { const raw = localStorage.getItem(KEY); if (raw) return (mem = JSON.parse(raw)); } catch {}
+    return (mem = seed());
+  }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch {} }
+  return {
+    async call(req){
+      await new Promise(r => setTimeout(r, 250));
+      const db = load();
+      const r = Core.handle(db, req, { now: Date.now()/60000, adminPass: 'demo' });
+      if (r.dirty && r.dirty.length) save();
+      return JSON.parse(JSON.stringify(r.result));
+    }
+  };
+})();
+
+async function api(action, data = {}){
+  const req = { action, ...data };
+  if (!API_URL) return Mock.call(req);
+  let res;
+  try {
+    res = await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(req) });
+  } catch { throw new Error('Could not reach the booking server. Check your connection and try again.'); }
+  const j = await res.json().catch(() => ({ ok:false, error:'The server sent an unexpected reply.' }));
+  if (!j.ok) throw new Error(j.error || 'Something went wrong.');
+  return j;
+}
+
+// ===== UI helpers =====
+let toastTimer;
+function toast(msg, err){
+  const t = $('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, err ? 6000 : 3500);
+}
+function ask(html, okLabel){
+  return new Promise(resolve => {
+    $('modalBody').innerHTML = html + `<div class="row" style="margin-top:16px;justify-content:flex-end">
+      <button class="ghost shrink" data-a="0">Back</button><button class="shrink" data-a="1">${esc(okLabel)}</button></div>`;
+    $('modal').hidden = false;
+    $('modalBody').querySelectorAll('[data-a]').forEach(b => b.onclick = () => { $('modal').hidden = true; resolve(b.dataset.a === '1'); });
+  });
+}
+async function busy(btn, fn){
+  const old = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin"></span>'; }
+  try { return await fn(); }
+  catch (e) { toast(e.message, true); }
+  finally { if (btn && btn.isConnected){ btn.disabled = false; btn.innerHTML = old; } }
+}
+
+// ===== Applicant view =====
+let view = null, email = '';
+
+$('findForm').onsubmit = e => {
+  e.preventDefault();
+  busy($('findBtn'), async () => {
+    email = $('email').value.trim();
+    view = await api('lookup', { email });
+    store.set('fopEmail', email);
+    renderMe();
+  });
+};
+
+function renderMe(){
+  const me = $('me');
+  if (!view){ me.innerHTML = ''; return; }
+  $('findForm').hidden = true;
+  const { applicant, mine, slots, buffer } = view;
+  const labels = ['1st choice', '2nd choice'];
+  let html = `<div class="card"><div class="row" style="align-items:center">
+      <div>Hi <b>${esc(applicant.name || applicant.email)}</b>. ${mine.length}/${applicant.choices.length} interview${applicant.choices.length > 1 ? 's' : ''} booked.</div>
+      <button class="link shrink" id="notMe">Not you?</button></div></div>`;
+  applicant.choices.forEach((p, i) => {
+    const booked = mine.find(b => b.portfolio === p);
+    const others = mine.filter(b => b.portfolio !== p);
+    const open = slots.filter(s => s.portfolio === p && s.left > 0 && (!booked || s.id !== booked.slotId));
+    const free = open.filter(s => !others.some(o => Core.clash(o, s, buffer)));
+    const hiddenCount = open.length - free.length;
+    html += `<section class="card"><div class="port-head"><span class="dot" style="background:${colorOf(p)}"></span>
+      <div><div class="tag">${labels[i] || 'Choice'}</div><div class="port-name">${esc(p)}</div></div></div>`;
+    if (booked){
+      html += `<div class="booked"><div><span class="ok">Booked</span><b>${when(booked.start, booked.end)}</b>
+        ${booked.location ? `<span class="muted small">${esc(booked.location)}</span>` : ''}</div>
+        <div class="row shrink"><button class="ghost shrink" data-change="${esc(p)}">Change</button>
+        <button class="danger shrink" data-cancel="${esc(booked.slotId)}">Cancel</button></div></div>
+        <div data-list="${esc(p)}" hidden>${slotList(free, hiddenCount, others)}</div>`;
+    } else {
+      html += slotList(free, hiddenCount, others);
+    }
+    html += '</section>';
+  });
+  me.innerHTML = html;
+  $('notMe').onclick = () => { view = null; email = ''; store.set('fopEmail', null); $('findForm').hidden = false; renderMe(); };
+  me.querySelectorAll('[data-change]').forEach(b => b.onclick = () => {
+    const list = me.querySelector(`[data-list="${CSS.escape(b.dataset.change)}"]`);
+    list.hidden = !list.hidden; b.textContent = list.hidden ? 'Change' : 'Keep current';
+  });
+  me.querySelectorAll('[data-cancel]').forEach(b => b.onclick = async () => {
+    const bk = mine.find(x => x.slotId === b.dataset.cancel);
+    if (!await ask(`<b>Cancel this interview?</b><p class="muted">${esc(bk.portfolio)}<br>${when(bk.start, bk.end)}</p>`, 'Cancel interview')) return;
+    busy(b, async () => { view = await api('cancel', { email, slotId: bk.slotId }); renderMe(); toast('Interview cancelled.'); });
+  });
+  me.querySelectorAll('[data-slot]').forEach(b => b.onclick = async () => {
+    const s = slots.find(x => x.id === b.dataset.slot);
+    const swap = mine.find(x => x.portfolio === s.portfolio);
+    const msg = `<b>${swap ? 'Move' : 'Book'} your ${esc(s.portfolio)} interview?</b>
+      <p>${when(s.start, s.end)}${s.location ? `<br><span class="muted">${esc(s.location)}</span>` : ''}</p>
+      ${swap ? `<p class="muted small">Your current slot (${when(swap.start, swap.end)}) will be released.</p>` : ''}`;
+    if (!await ask(msg, swap ? 'Move' : 'Book')) return;
+    busy(b, async () => {
+      try { view = await api('book', { email, slotId: s.id }); toast('Booked. A confirmation email is on its way.'); }
+      catch (e) { toast(e.message, true); view = await api('lookup', { email }); }
+      renderMe();
+    });
+  });
+}
+
+function slotList(free, hiddenCount, others){
+  if (!free.length){
+    return `<div class="empty">${hiddenCount ? `The remaining open slots clash with your ${esc(others[0].portfolio)} interview. Try moving that one, or check back later.`
+      : 'No open slots right now. More may be added, so check back later.'}</div>`;
+  }
+  let html = '', lastDay = '';
+  free.forEach(s => {
+    const d = dayOf(s.start);
+    if (d !== lastDay){ html += (lastDay ? '</div>' : '') + `<div class="day">${d}</div><div class="slots">`; lastDay = d; }
+    html += `<button class="slot" data-slot="${esc(s.id)}">${hm(s.start)}–${hm(s.end)}${s.location ? `<small>${esc(s.location)}</small>` : ''}</button>`;
+  });
+  html += '</div>';
+  if (hiddenCount) html += `<div class="note">${hiddenCount} slot${hiddenCount > 1 ? 's' : ''} hidden because ${hiddenCount > 1 ? 'they clash' : 'it clashes'} with your other interview.</div>`;
+  return html;
+}
+
+// Keep the applicant's view fresh while the tab is open
+setInterval(async () => {
+  if (!view || document.hidden || !$('modal').hidden || $('applicantView').hidden) return;
+  try { view = await api('lookup', { email }); renderMe(); } catch {}
+}, 20000);
+
+// ===== Committee view =====
+let adm = null, pass = '', tab = 'slots', portFilter = '';
+
+$('switchView').onclick = () => {
+  const toAdmin = $('adminView').hidden;
+  $('adminView').hidden = !toAdmin; $('applicantView').hidden = toAdmin;
+  $('switchView').textContent = toAdmin ? 'Applicant view' : 'Committee view';
+  if (toAdmin && !adm && store.get('fopPass')){ pass = store.get('fopPass'); loadAdmin(); }
+};
+$('loginForm').onsubmit = e => {
+  e.preventDefault();
+  pass = $('pass').value;
+  busy(e.submitter, loadAdmin);
+};
+async function loadAdmin(){
+  try {
+    adm = await api('admin', { pass });
+    store.set('fopPass', pass);
+    $('loginForm').hidden = true; $('admin').hidden = false;
+    renderAdmin();
+  } catch (e) { store.set('fopPass', null); throw e; }
+}
+async function adminCall(action, data, btn){
+  return busy(btn, async () => {
+    adm = await api(action, { pass, ...data });
+    if (adm.message) toast(adm.message);
+    renderAdmin();
+  });
+}
+$('tabs').onclick = e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  tab = b.dataset.tab;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  ['slots','applicants','import'].forEach(t => $('tab-' + t).hidden = t !== tab);
+};
+function renderAdmin(){ renderSlotsTab(); renderApplicantsTab(); renderImportTab(); }
+
+function portOptions(sel, withAll){
+  return (withAll ? `<option value="">All portfolios</option>` : '') +
+    adm.portfolios.map(p => `<option ${p === sel ? 'selected' : ''}>${esc(p)}</option>`).join('');
+}
+
+function renderSlotsTab(){
+  const el = $('tab-slots');
+  const today = new Date(Date.now() + 8*3600e3).toISOString().slice(0,10);
+  const list = adm.slots.filter(s => !portFilter || s.portfolio === portFilter);
+  const bookedCount = list.filter(s => s.booked.length).length;
+  let html = `<form class="card" id="addForm"><b>Add slots</b><p class="muted small" style="margin:2px 0 12px">Splits the time range into back-to-back slots. Applicants keep a ${adm.buffer}-minute gap between their two interviews automatically.</p>
+    <div class="row"><div><label>Portfolio</label><select name="portfolio">${portOptions(portFilter || adm.portfolios[0])}</select></div>
+      <div><label>Date</label><input type="date" name="date" value="${today}" required></div></div>
+    <div class="row" style="margin-top:10px"><div><label>From</label><input type="time" name="from" value="14:00" required></div>
+      <div><label>To</label><input type="time" name="to" value="17:00" required></div>
+      <div><label>Minutes each</label><input type="number" name="length" value="20" min="5" max="180" required></div>
+      <div><label>Interviewees per slot</label><input type="number" name="capacity" value="1" min="1" max="20" required></div></div>
+    <div class="row" style="margin-top:10px"><div><label>Location (optional)</label><input name="location" placeholder="e.g. SPMS-TR+41 or Zoom link"></div>
+      <button class="shrink" type="submit">Add slots</button></div></form>
+    <div class="card"><div class="row" style="align-items:center"><div><select id="portFilter">${portOptions(portFilter, true)}</select></div>
+      <div class="shrink muted small">${list.length} slots, ${bookedCount} booked</div>
+      <button class="ghost shrink" id="copySched">Copy schedule</button>
+      <button class="danger shrink" id="delSel">Delete selected</button></div>`;
+  if (!list.length) html += `<div class="empty" style="margin-top:12px">No slots yet.</div>`;
+  else {
+    html += `<table style="margin-top:10px"><thead><tr><th></th><th>Time</th>${portFilter ? '' : '<th>Portfolio</th>'}<th>Booked</th><th>Location</th></tr></thead><tbody>`;
+    let lastDay = '';
+    list.forEach(s => {
+      const d = dayOf(s.start);
+      if (d !== lastDay){ html += `<tr><td colspan="5" class="day" style="border:0;padding-top:14px">${d}</td></tr>`; lastDay = d; }
+      html += `<tr><td><input type="checkbox" data-id="${esc(s.id)}" ${s.booked.length ? 'disabled title="Booked"' : ''} style="width:auto"></td>
+        <td>${hm(s.start)}–${hm(s.end)}</td>
+        ${portFilter ? '' : `<td><span class="dot" style="display:inline-block;background:${colorOf(s.portfolio)};margin-right:6px;vertical-align:-1px"></span>${esc(s.portfolio)}</td>`}
+        <td>${s.booked.length ? s.booked.map(b => esc(b.name || b.email)).join(', ') + (s.capacity > 1 ? ` <span class="muted">(${s.booked.length}/${s.capacity})</span>` : '')
+          : `<span class="muted">Open${s.capacity > 1 ? ` (0/${s.capacity})` : ''}</span>`}</td>
+        <td class="muted">${esc(s.location)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+  $('addForm').onsubmit = e => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target));
+    adminCall('addSlots', f, e.submitter);
+  };
+  $('portFilter').onchange = e => { portFilter = e.target.value; renderSlotsTab(); };
+  $('delSel').onclick = async e => {
+    const ids = [...el.querySelectorAll('input[data-id]:checked')].map(c => c.dataset.id);
+    if (!ids.length) return toast('Tick the open slots you want to delete first.');
+    if (!await ask(`<b>Delete ${ids.length} slot${ids.length > 1 ? 's' : ''}?</b>`, 'Delete')) return;
+    adminCall('deleteSlots', { ids }, e.target);
+  };
+  $('copySched').onclick = () => {
+    const lines = [];
+    let last = '';
+    list.forEach(s => {
+      const head = `${portFilter ? '' : s.portfolio + ' | '}${dayOf(s.start)}`;
+      if (head !== last){ lines.push('', head); last = head; }
+      lines.push(`${hm(s.start)}-${hm(s.end)}  ${s.booked.length ? s.booked.map(b => `${b.name} (${b.email})`).join(', ') : 'open'}${s.location ? '  @ ' + s.location : ''}`);
+    });
+    copy(lines.join('\n').trim(), 'Schedule copied.');
+  };
+}
+
+function renderApplicantsTab(){
+  const el = $('tab-applicants');
+  const rows = adm.applicants;
+  const status = a => {
+    const ch = [a.choice1, a.choice2].filter(Boolean);
+    return { ch, done: ch.filter(p => a.bookings.some(b => b.portfolio === p)).length };
+  };
+  const full = rows.filter(a => { const s = status(a); return s.ch.length && s.done === s.ch.length; });
+  const pending = rows.filter(a => !full.includes(a));
+  let html = `<div class="card"><div class="stat"><div><b>${rows.length}</b><span class="muted small">applicants</span></div>
+      <div><b>${full.length}</b><span class="muted small">fully booked</span></div>
+      <div><b>${pending.length}</b><span class="muted small">still to book</span></div></div>
+    <button class="ghost" id="copyPending" ${pending.length ? '' : 'disabled'}>Copy emails of those still to book</button>`;
+  if (!rows.length) html += `<div class="empty" style="margin-top:12px">No applicants yet. Use the Import tab.</div>`;
+  else {
+    html += `<table style="margin-top:12px"><thead><tr><th>Name</th><th>1st choice</th><th>2nd choice</th></tr></thead><tbody>`;
+    const known = p => !p || adm.portfolios.slice(0, Core.PORTFOLIOS.length).includes(p);
+    const cell = (a, p) => {
+      if (!p) return '<span class="muted">-</span>';
+      const b = a.bookings.find(x => x.portfolio === p);
+      return `<div class="${known(p) ? '' : 'bad'}">${esc(p)}</div>` + (b ? `<span class="pill">${when(b.start, b.end)}</span>` : `<span class="pill no">not booked</span>`);
+    };
+    rows.slice().sort((x, y) => status(x).done - status(y).done || String(x.name).localeCompare(y.name)).forEach(a => {
+      html += `<tr><td><b>${esc(a.name)}</b><br><span class="muted small">${esc(a.email)}</span></td><td>${cell(a, a.choice1)}</td><td>${cell(a, a.choice2)}</td></tr>`;
+    });
+    html += '</tbody></table>';
+  }
+  el.innerHTML = html + '</div>';
+  const cp = $('copyPending');
+  if (cp) cp.onclick = () => copy(pending.map(a => a.email).join('; '), `${pending.length} emails copied.`);
+}
+
+// ----- Import: paste from Excel / Forms export -----
+let parsed = null;
+function splitCsv(line){
+  const out = []; let cur = '', q = false;
+  for (let i = 0; i < line.length; i++){
+    const c = line[i];
+    if (q){ if (c === '"' && line[i+1] === '"'){ cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }
+    else if (c === '"') q = true; else if (c === ','){ out.push(cur); cur = ''; } else cur += c;
+  }
+  out.push(cur); return out.map(s => s.trim());
+}
+function parsePaste(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) return null;
+  const tab = lines[0].includes('\t');
+  const rows = lines.map(l => tab ? l.split('\t').map(s => s.trim()) : splitCsv(l));
+  const h = rows[0].map(c => c.toLowerCase());
+  const find = (test) => h.findIndex(test);
+  let ie = find(c => c.includes('email'));
+  const header = ie >= 0;
+  let iname = find(c => c.includes('full name'));
+  if (iname < 0) iname = find(c => c.includes('name') && !c.includes('email') && !c.includes('modified'));
+  const i1 = find(c => /1st|first/.test(c)), i2 = find(c => /2nd|second/.test(c));
+  return { header, rows: header ? rows.slice(1) : rows, cols: header ? rows[0] : rows[0].map((_, i) => 'Column ' + (i + 1)),
+    map: header ? { email: ie, name: iname, choice1: i1, choice2: i2 } : { email: 0, name: 1, choice1: 2, choice2: 3 } };
+}
+function mappedRows(){
+  if (!parsed) return [];
+  const g = (r, k) => parsed.map[k] >= 0 ? (r[parsed.map[k]] || '') : '';
+  return parsed.rows.map(r => ({ email: g(r, 'email'), name: g(r, 'name'), choice1: g(r, 'choice1'), choice2: g(r, 'choice2') }));
+}
+function renderImportTab(){
+  const el = $('tab-import');
+  if (el.dataset.ready) return renderPreview();
+  el.dataset.ready = '1';
+  el.innerHTML = `<div class="card"><b>Import applicants</b>
+    <p class="muted small" style="margin:2px 0 10px">Open your sign-up responses in Excel, select the columns (with the header row) and paste here. CSV also works. Existing emails get updated, new ones get added. Each applicant then books by entering their email.</p>
+    <textarea id="paste" placeholder="Email&#9;Full name&#9;1st choice&#9;2nd choice"></textarea>
+    <div id="preview"></div></div>`;
+  $('paste').oninput = e => { parsed = parsePaste(e.target.value); renderPreview(); };
+}
+function renderPreview(){
+  const el = $('preview'); if (!el) return;
+  if (!parsed){ el.innerHTML = ''; return; }
+  const fields = [['email','Email'],['name','Name'],['choice1','1st choice'],['choice2','2nd choice']];
+  const rows = mappedRows();
+  const valid = rows.filter(r => /@/.test(r.email));
+  const unknown = [...new Set(rows.flatMap(r => [r.choice1, r.choice2]).filter(Boolean)
+    .map(Core.matchPortfolio).filter(p => !Core.PORTFOLIOS.includes(p)))];
+  let html = `<div class="row" style="margin-top:12px">` + fields.map(([k, l]) =>
+    `<div><label>${l} column</label><select data-map="${k}"><option value="-1">(none)</option>${parsed.cols.map((c, i) =>
+      `<option value="${i}" ${parsed.map[k] === i ? 'selected' : ''}>${esc(c || 'Column ' + (i + 1))}</option>`).join('')}</select></div>`).join('') + '</div>';
+  html += `<p class="small" style="margin:10px 0">${valid.length} of ${rows.length} rows have an email.` +
+    (unknown.length ? ` <span class="bad">Portfolio names not recognised: ${unknown.map(esc).join(', ')}. They'll import as written, but check the spelling.</span>` : ' All portfolio names recognised.') + '</p>';
+  if (valid.length) html += `<table><thead><tr><th>Email</th><th>Name</th><th>1st</th><th>2nd</th></tr></thead><tbody>${valid.slice(0, 5).map(r =>
+    `<tr><td>${esc(r.email)}</td><td>${esc(r.name)}</td><td>${esc(Core.matchPortfolio(r.choice1))}</td><td>${esc(Core.matchPortfolio(r.choice2))}</td></tr>`).join('')}</tbody></table>
+    ${valid.length > 5 ? `<p class="muted small">and ${valid.length - 5} more</p>` : ''}
+    <button id="doImport" style="margin-top:10px">Import ${valid.length} applicant${valid.length > 1 ? 's' : ''}</button>`;
+  el.innerHTML = html;
+  el.querySelectorAll('[data-map]').forEach(s => s.onchange = () => { parsed.map[s.dataset.map] = Number(s.value); renderPreview(); });
+  const btn = $('doImport');
+  if (btn) btn.onclick = () => adminCall('importApplicants', { rows: valid }, btn);
+}
+
+async function copy(text, msg){
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch {
+    $('modalBody').innerHTML = `<b>Copy this</b><textarea style="margin-top:10px">${esc(text)}</textarea><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="shrink" id="closeCopy">Done</button></div>`;
+    $('modal').hidden = false; $('closeCopy').onclick = () => $('modal').hidden = true;
+    $('modalBody').querySelector('textarea').select();
+  }
+}
+
+// ===== Start =====
+if (!API_URL) $('demoBanner').hidden = false;
+const remembered = store.get('fopEmail');
+if (remembered){ $('email').value = remembered; $('findForm').requestSubmit(); }
+</script>
+</body>
+</html>
