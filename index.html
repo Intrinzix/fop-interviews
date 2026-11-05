@@ -132,6 +132,8 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dayOf = s => new Date(s + ':00+08:00').toLocaleDateString('en-SG', {weekday:'short', day:'numeric', month:'short', timeZone:'Asia/Singapore'});
 const hm = s => s.slice(11, 16);
+// Accepts 14:00, 1400, 9:30 or 930 and returns HH:MM, or null
+const to24 = v => { const m = String(v).trim().match(/^(\d{1,2}):?(\d{2})$/); return m && +m[1] < 24 && +m[2] < 60 ? m[1].padStart(2, '0') + ':' + m[2] : null; };
 const when = (s, e) => `${dayOf(s)}, ${hm(s)}–${hm(e)}`;
 const store = {
   get(k){ try { return sessionStorage.getItem(k); } catch { return null; } },
@@ -350,8 +352,8 @@ function renderSlotsTab(){
   let html = `<form class="card" id="addForm"><b>Add slots</b><p class="muted small" style="margin:2px 0 12px">Splits the time range into back-to-back slots. Applicants keep a ${adm.buffer}-minute gap between their two interviews automatically.</p>
     <div class="row"><div><label>Portfolio</label><select name="portfolio">${portOptions(portFilter || adm.portfolios[0])}</select></div>
       <div><label>Date</label><input type="date" name="date" value="${today}" required></div></div>
-    <div class="row" style="margin-top:10px"><div><label>From</label><input type="time" name="from" value="14:00" required></div>
-      <div><label>To</label><input type="time" name="to" value="17:00" required></div>
+    <div class="row" style="margin-top:10px"><div><label>From</label><input name="from" value="14:00" placeholder="14:00" inputmode="numeric" maxlength="5" title="24-hour time, e.g. 09:00 or 14:30" required></div>
+      <div><label>To</label><input name="to" value="17:00" placeholder="17:00" inputmode="numeric" maxlength="5" title="24-hour time, e.g. 09:00 or 14:30" required></div>
       <div><label>Minutes each</label><input type="number" name="length" value="20" min="5" max="180" required></div>
       <div><label>Interviewees per slot</label><input type="number" name="capacity" value="1" min="1" max="20" required></div></div>
     <div class="row" style="margin-top:10px"><div><label>Location (optional)</label><input name="location" placeholder="e.g. SPMS-TR+41 or Zoom link"></div>
@@ -381,6 +383,8 @@ function renderSlotsTab(){
   $('addForm').onsubmit = e => {
     e.preventDefault();
     const f = Object.fromEntries(new FormData(e.target));
+    f.from = to24(f.from); f.to = to24(f.to);
+    if (!f.from || !f.to) return toast('Use 24-hour times, e.g. 09:00 or 14:30.', true);
     adminCall('addSlots', f, e.submitter);
   };
   $('portFilter').onchange = e => { portFilter = e.target.value; renderSlotsTab(); };
@@ -406,32 +410,30 @@ function renderApplicantsTab(){
   const el = $('tab-applicants');
   const rows = adm.applicants;
   const status = a => {
-    const ch = [a.choice1, a.choice2].filter(Boolean);
+    const ch = [...new Set([a.choice1, a.choice2].filter(Boolean))];
     return { ch, done: ch.filter(p => a.bookings.some(b => b.portfolio === p)).length };
   };
   const full = rows.filter(a => { const s = status(a); return s.ch.length && s.done === s.ch.length; });
   const pending = rows.filter(a => !full.includes(a));
   let html = `<div class="card"><div class="stat"><div><b>${rows.length}</b><span class="muted small">applicants</span></div>
       <div><b>${full.length}</b><span class="muted small">fully booked</span></div>
-      <div><b>${pending.length}</b><span class="muted small">still to book</span></div></div>
-    <button class="ghost" id="copyPending" ${pending.length ? '' : 'disabled'}>Copy emails of those still to book</button>`;
+      <div><b>${pending.length}</b><span class="muted small">still to book</span></div></div>`;
   if (!rows.length) html += `<div class="empty" style="margin-top:12px">No applicants yet. Use the Import tab.</div>`;
   else {
     html += `<table style="margin-top:12px"><thead><tr><th>Name</th><th>1st choice</th><th>2nd choice</th></tr></thead><tbody>`;
     const known = p => !p || adm.portfolios.slice(0, Core.PORTFOLIOS.length).includes(p);
-    const cell = (a, p) => {
+    const cell = (a, p, second) => {
       if (!p) return '<span class="muted">-</span>';
+      if (second && p === a.choice1) return '<span class="muted">Same as 1st choice</span>';
       const b = a.bookings.find(x => x.portfolio === p);
       return `<div class="${known(p) ? '' : 'bad'}">${esc(p)}</div>` + (b ? `<span class="pill">${when(b.start, b.end)}</span>` : `<span class="pill no">not booked</span>`);
     };
     rows.slice().sort((x, y) => status(x).done - status(y).done || String(x.name).localeCompare(y.name)).forEach(a => {
-      html += `<tr><td><b>${esc(a.name)}</b><br><span class="muted small">${esc(a.email)}</span></td><td>${cell(a, a.choice1)}</td><td>${cell(a, a.choice2)}</td></tr>`;
+      html += `<tr><td><b>${esc(a.name)}</b><br><span class="muted small">${esc(a.email)}</span></td><td>${cell(a, a.choice1)}</td><td>${cell(a, a.choice2, true)}</td></tr>`;
     });
     html += '</tbody></table>';
   }
   el.innerHTML = html + '</div>';
-  const cp = $('copyPending');
-  if (cp) cp.onclick = () => copy(pending.map(a => a.email).join('; '), `${pending.length} emails copied.`);
 }
 
 // ----- Import: paste from Excel / Forms export -----
