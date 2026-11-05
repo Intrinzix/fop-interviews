@@ -49,6 +49,16 @@ var Core = (function () {
   function choicesOf(a) { return uniq([norm(a.choice1), norm(a.choice2)]); }
   function taken(db, slotId) { return db.bookings.filter(function (b) { return b.slotId === slotId; }).length; }
   function cap(s) { return Math.max(1, Number(s.capacity) || 1); }
+  function overlap(a, b) { return toMin(a.start) < toMin(b.end) && toMin(b.start) < toMin(a.end); }
+  // A slot is blocked when another slot of the same portfolio overlaps it and already has a booking
+  // (the panel can't be in two interviews at once). The applicant's own bookings don't count, so they can move.
+  function blocked(db, slot, exceptEmail) {
+    return db.bookings.some(function (b) {
+      if (b.slotId === slot.id || b.portfolio !== slot.portfolio) return false;
+      if (exceptEmail && lc(b.email) === lc(exceptEmail)) return false;
+      return overlap(b, slot);
+    });
+  }
 
   function applicantView(db, email, now) {
     var a = findApplicant(db, email);
@@ -61,7 +71,7 @@ var Core = (function () {
     var slots = db.slots.filter(function (s) {
       return choices.indexOf(s.portfolio) >= 0 && toMin(s.start) > now;
     }).map(function (s) {
-      return { id: s.id, portfolio: s.portfolio, start: s.start, end: s.end, location: s.location || '', left: Math.max(0, cap(s) - taken(db, s.id)) };
+      return { id: s.id, portfolio: s.portfolio, start: s.start, end: s.end, location: s.location || '', left: blocked(db, s, a.email) ? 0 : Math.max(0, cap(s) - taken(db, s.id)) };
     }).sort(byStart);
     return { ok: true, applicant: { name: a.name, email: a.email, choices: choices }, mine: mine, slots: slots, buffer: BUFFER_MIN };
   }
@@ -77,6 +87,7 @@ var Core = (function () {
     var same = mine.filter(function (b) { return b.portfolio === slot.portfolio; })[0];
     if (same && same.slotId === slot.id) return { result: applicantView(db, a.email, now), dirty: [] };
     if (taken(db, slot.id) >= cap(slot)) throw new Error('Someone just took that slot. Please pick another one.');
+    if (blocked(db, slot, a.email)) throw new Error('That time was just taken by an overlapping slot. Please pick another one.');
     var other = mine.filter(function (b) { return b.portfolio !== slot.portfolio && clash(b, slot); })[0];
     if (other) throw new Error('That slot is too close to your ' + other.portfolio + ' interview. Please pick another one.');
     if (same) db.bookings.splice(db.bookings.indexOf(same), 1);
@@ -107,7 +118,7 @@ var Core = (function () {
     return {
       ok: true, portfolios: ports, buffer: BUFFER_MIN,
       slots: db.slots.map(function (s) {
-        return { id: s.id, portfolio: s.portfolio, start: s.start, end: s.end, capacity: cap(s), location: s.location || '', booked: bySlot[s.id] || [] };
+        return { id: s.id, portfolio: s.portfolio, start: s.start, end: s.end, capacity: cap(s), location: s.location || '', booked: bySlot[s.id] || [], blocked: !bySlot[s.id] && blocked(db, s) };
       }).sort(byStart),
       applicants: db.applicants.map(function (a) {
         return {
@@ -125,16 +136,19 @@ var Core = (function () {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(norm(r.date))) throw new Error('Pick a date.');
     if (!/^\d{2}:\d{2}$/.test(norm(r.from)) || !/^\d{2}:\d{2}$/.test(norm(r.to))) throw new Error('Enter start and end times.');
     if (!(len >= 5 && len <= 180)) throw new Error('Slot length must be between 5 and 180 minutes.');
-    var m = toMin(r.date + 'T' + r.from), end = toMin(r.date + 'T' + r.to), added = 0;
+    var m = toMin(r.date + 'T' + r.from), end = toMin(r.date + 'T' + r.to), added = 0, skipped = 0;
     if (!(end > m)) throw new Error('End time must be after start time.');
     for (; m + len <= end; m += len) {
       var start = minToStr(m);
-      var dup = db.slots.some(function (s) { return s.portfolio === portfolio && s.start === start; });
-      if (dup) continue;
-      db.slots.push({ id: newId(), portfolio: portfolio, start: start, end: minToStr(m + len), capacity: capacity, location: norm(r.location) });
+      var slot = { id: newId(), portfolio: portfolio, start: start, end: minToStr(m + len), capacity: capacity, location: norm(r.location) };
+      var clashes = db.slots.some(function (s) { return s.portfolio === portfolio && overlap(s, slot); });
+      if (clashes) { skipped++; continue; }
+      db.slots.push(slot);
       added++;
     }
-    var res = adminView(db); res.message = added + ' slot' + (added === 1 ? '' : 's') + ' added.';
+    var res = adminView(db);
+    res.message = added + ' slot' + (added === 1 ? '' : 's') + ' added.' +
+      (skipped ? ' ' + skipped + ' skipped because ' + (skipped === 1 ? 'it overlaps' : 'they overlap') + ' existing ' + portfolio + ' slots.' : '');
     return { result: res, dirty: added ? ['slots'] : [] };
   }
 
