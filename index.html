@@ -373,6 +373,7 @@ function renderSlotsTab(){
         <td>${hm(s.start)}–${hm(s.end)}</td>
         ${portFilter ? '' : `<td><span class="dot" style="display:inline-block;background:${colorOf(s.portfolio)};margin-right:6px;vertical-align:-1px"></span>${esc(s.portfolio)}</td>`}
         <td>${s.booked.length ? s.booked.map(b => esc(b.name || b.email)).join(', ') + (s.capacity > 1 ? ` <span class="muted">(${s.booked.length}/${s.capacity})</span>` : '')
+          : s.blocked ? `<span class="muted">Blocked (overlaps a booked slot)</span>`
           : `<span class="muted">Open${s.capacity > 1 ? ` (0/${s.capacity})` : ''}</span>`}</td>
         <td class="muted">${esc(s.location)}</td></tr>`;
     });
@@ -400,7 +401,7 @@ function renderSlotsTab(){
     list.forEach(s => {
       const head = `${portFilter ? '' : s.portfolio + ' | '}${dayOf(s.start)}`;
       if (head !== last){ lines.push('', head); last = head; }
-      lines.push(`${hm(s.start)}-${hm(s.end)}  ${s.booked.length ? s.booked.map(b => `${b.name} (${b.email})`).join(', ') : 'open'}${s.location ? '  @ ' + s.location : ''}`);
+      lines.push(`${hm(s.start)}-${hm(s.end)}  ${s.booked.length ? s.booked.map(b => `${b.name} (${b.email})`).join(', ') : s.blocked ? 'blocked' : 'open'}${s.location ? '  @ ' + s.location : ''}`);
     });
     copy(lines.join('\n').trim(), 'Schedule copied.');
   };
